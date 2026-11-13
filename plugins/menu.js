@@ -199,7 +199,7 @@ const menuCommand = {
             const query = args.join(' ').trim();
 
             // Show all commands
-            if (query.toLowerCase() === 'all') {
+            if (!query || query.toLowerCase() === 'all') {
                 const allText = buildAllMenu(prefix, categories);
 
                 await sock.sendMessage(
