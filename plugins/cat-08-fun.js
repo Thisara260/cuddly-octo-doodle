@@ -14,9 +14,9 @@ const path = require('path');
 
 const JOKES = [
     "Why don't scientists trust atoms? Because they make up everything!",
-    "एक आदमी डॉक्टर के पास गया और बोला – डॉक्टर साहब, मुझे हर रात सपना आता है कि मैं एक कप चाय हूँ। डॉक्टर बोले – अरे यार, तू तो छोड़, चाय की पत्तियाँ कैसी हैं?",
+    "A man went to the doctor and said, 'Doctor, every night I dream that I am a cup of tea.' The doctor replied, 'Forget about yourself—how are the tea leaves?'",
     "What do you call a fake noodle? An impasta!",
-    "टीचर: 'तुम्हें पढ़ाई क्यों नहीं करनी?' स्टूडेंट: 'सर, मैं तो किताबें पढ़ता हूँ, पर वो मुझे नहीं पढ़तीं।'",
+    "Teacher: 'Why don't you study?' Student: 'I do read books, sir, but they never read me!'",
     "I told my wife she should embrace her mistakes. She gave me a hug."
 ];
 
@@ -1089,46 +1089,44 @@ const gtts = require('gtts');
 const fs = require('fs');
 const path = require('path');
 
-// 50+ Shayari in Hindi, Urdu, and English
+// 50+ shayari in English
 const SHAYARI = [
-    // Hindi (1-20)
-    "मोहब्बत में हमने तुम्हें दिल दिया, तुमने क्या दिया? एक धोखा दिया, एक सज़ा दिया।",
-    "हर किसी को मुकम्मल जहाँ नहीं मिलता, किसी को ख़ुशी तो किसी को जहर का प्याला मिलता है।",
-    "उनकी आँखों में बसा कर देखा, तो पता चला कि वो किसी और के लिए धड़कती हैं।",
-    "दिल टूटा तो एहसास हुआ, कि हर मोहब्बत का अंजाम अलग होता है।",
-    "हम उनसे मिलने को तरस गए, और वो हमसे मिलकर भी खो गए।",
-    "तेरी यादों ने ऐसा जादू किया, हर घड़ी तेरा ही ख्याल आया।",
-    "बहुत खूबसूरत थी वो शाम, जब तुम मिले थे हमसे, अब तो हर शाम तुम्हारी याद लाती है।",
-    "कभी हँसते हैं तो कभी रोते हैं, तेरे बिना हम क्या करते हैं?",
-    "दिल की बात जुबां पर नहीं लाते, तुम्हें देखकर मुस्कुरा देते हैं।",
-    "तेरी आँखों में खो जाने का दिल करता है, तेरे बिना जीने का मन नहीं करता।",
-    "इश्क़ में हम तुम्हें क्या बताएँ, दिल का हाल जुबां पर नहीं आता।",
-    "तेरे बिना हर लम्हा अधूरा है, तू ही मेरी ज़िन्दगी का सहारा है।",
-    "दिल की धड़कन तुम हो, साँसों में बसी खुशबू तुम हो।",
-    "तेरे इश्क़ में हम दीवाने हो गए, तेरे लिए हम पागल हो गए।",
-    "हम तो तुम्हारे हो गए, अब और किसी के नहीं।",
-    "तेरे बिना जीना सीखा है, तू न हो तो क्या होगा?",
-    "तेरी यादों का सहारा लिए बैठे हैं, तू आए तो जिएं वरना मर जाएँ।",
-    "तेरे इश्क़ ने हमें क्या बना दिया, दुनिया से बेगाना कर दिया।",
-    "हम तुम्हें भूल जाएँ ऐसा हो न सके, तुम्हारे बिना हम कहाँ टिक सके?",
-    "तेरी बातों में वो मिठास है, जैसे गुलाब में खुशबू का एहसास।",
-
-    // Urdu (21-35)
-    "उनकी यादों ने हमें तरसाया, रात भर जागकर हमने गुज़ारा।",
-    "दिल में बसा लिया तुमको, अब निकालना मुश्किल है।",
-    "तेरे प्यार में हमने दुनिया भुला दी, तू ही मेरी ज़िन्दगी बन गया।",
-    "हम तो तेरे दीवाने हैं, तू समझे न समझे, हम तो तेरे दीवाने हैं।",
-    "तेरी एक मुस्कान पे हम वारे जाएँ, तेरे लिए हम जान भी दे दें।",
-    "दिल की बात छुपाई नहीं जाती, तुझसे मिलने की तमन्ना सताती है।",
-    "तेरे इश्क़ ने हमें पागल कर दिया, हर घड़ी तेरा ही ख़याल रहता है।",
-    "तेरी आँखों में डूबने का दिल करता है, तेरे बिना अब जीने का मन नहीं करता।",
-    "तेरे बिना हर लम्हा सून है, तू ही मेरी दुनिया का रौशन चाँद है।",
-    "तेरी हँसी मेरी दवा है, तेरा दर्द मेरा इलाज़ है।",
-    "तेरे ख़त में लिखा था कि तुम आओगे, हमने राहें तक लीं, तुम न आए।",
-    "बिछड़कर भी तेरे पास रहते हैं, ये दिल क्या जाने कैसे कहते हैं।",
-    "तेरी याद ने जगाया रात भर, हम सोचते रहे तू क्यों नहीं मिला।",
-    "तेरा दर्द बहुत है सीने में, फिर भी हम मुस्कुरा रहे हैं।",
-    "तेरी बेरुखी ने मार डाला, हम तो तेरे लिए ही थे।",
+    // English (1-35)
+    "I gave you my heart in love. What did you give me? Betrayal and a lifetime of pain.",
+    "Not everyone finds a perfect world; some find happiness, while others receive a cup of sorrow.",
+    "I looked into your eyes and realized they were beating for someone else.",
+    "When my heart broke, I learned that every love story has a different ending.",
+    "I longed to meet you, yet even after we met, I somehow lost you.",
+    "Your memories cast such a spell that every moment brought you to mind.",
+    "That evening was beautiful when we first met; now every evening reminds me of you.",
+    "Sometimes I laugh and sometimes I cry—what would I do without you?",
+    "I keep the feelings of my heart unspoken and simply smile when I see you.",
+    "I want to get lost in your eyes; life without you holds no appeal.",
+    "How can I explain this love when my heart's feelings refuse to become words?",
+    "Every moment without you feels incomplete; you are the support of my life.",
+    "You are my heartbeat, and your fragrance lives in every breath I take.",
+    "Your love has made me completely devoted to you.",
+    "I belong to you now, and to no one else.",
+    "I have learned to live without you, but what happens if you never return?",
+    "I wait, supported by your memories; if you return, I will live again.",
+    "Your love changed me and made me feel like a stranger in this world.",
+    "I could never truly forget you; where would I belong without you?",
+    "Your words are as sweet as the fragrance of a rose.",
+    "Your memories kept me awake, and I spent the whole night missing you.",
+    "I have made a home for you in my heart; now it is difficult to let you go.",
+    "Your love made me forget the world; you became my whole life.",
+    "I am devoted to you, whether you understand it or not.",
+    "I would give anything for just one of your smiles.",
+    "I cannot hide what is in my heart; the longing to meet you never fades.",
+    "Your love has made me lose my mind; every moment, my thoughts return to you.",
+    "I want to drown in your eyes; life without you feels impossible.",
+    "Every moment without you feels empty; you are the shining moon of my world.",
+    "Your laughter is my medicine, and your pain feels like my own.",
+    "Your letter said you would come; I waited, but you never arrived.",
+    "Even after parting, my heart stays close to you.",
+    "Your memory kept me awake all night, wondering why we never met.",
+    "My chest is full of pain, yet I keep smiling.",
+    "Your indifference broke me; I was always there for you.",
 
     // English (36-50)
     "You are the sunshine of my life, without you everything is grey.",
@@ -2038,7 +2036,7 @@ try {
  *                                                                           *
  *  💬  WhatsApp : https://chat.whatsapp.com/K9Wqwf7EQsn2hFwwAJgWw7     *
  *                                                                           *
- *    © 2026 Sila-Md. All rights reserved.                            *
+ *    © 2026 GIMAA-MD. All rights reserved.                            *
  *                                                                           *
  *    Description: This file is part of the GIMAA-MD Project.                 *
  *                 Unauthorized copying or distribution is prohibited.       *
@@ -2089,7 +2087,7 @@ module.exports = {
  *                                                                           *
  *  💬  WhatsApp : https://chat.whatsapp.com/K9Wqwf7EQsn2hFwwAJgWw7     *
  *                                                                           *
- *    © 2026 Sila-Md. All rights reserved.                            *
+ *    © 2026 GIMAA-MD. All rights reserved.                            *
  *                                                                           *
  *    Description: This file is part of the GIMAA-MD Project.                 *
  *                 Unauthorized copying or distribution is prohibited.       *
@@ -2111,49 +2109,49 @@ const gtts = require('gtts');
 const fs = require('fs');
 const path = require('path');
 
-// Expanded gaali list – 50+ lines in Hindi/Urdu/English
+// Expanded list of playful insults in English
 const GAALIS = [
-    // Hindi/Urdu
-    "Madarchod! Teri maa ka bhosda!",
-    "Bhen ke lode!",
-    "Tatti chod! Randi ke!",
-    "Gaand mara! Chutiye!",
-    "Bhan ka taka!",
-    "Teri ma ko lun!",
-    "Mia Khalifa ki aulad!",
-    "Johny Sins ki aulaad!",
-    "Ladle! Maderchod!",
-    "Mewo! Madarjaat!",
-    "Teri ammi ka joota!",
-    "Haramzade!",
-    "Kamine! Suar ki aulad!",
-    "Teri behen ki choot!",
-    "Tera baap chakka!",
-    "Bhadwe!",
-    "Teri naani ka tatta!",
-    "Gandu!",
-    "Randibaaz!",
-    "Chakke ke pille!",
-    "Kutte ki dum!",
-    "Teri mummy ka lund!",
-    "Teri didi ka bhosda!",
-    "Teri family ka bharosa nahi!",
-    "Maa chudane wale!",
-    "Bhen ke takke!",
-    "Lund le!",
-    "Teri gaand mein danda!",
-    "Chup chaap mar!",
-    "Suar ki aulaad!",
-    "Kutte ki nasal!",
-    "Teri ammi ka number do!",
-    "Tera baap nahi teri maa bhi nahi!",
-    "Hijde!",
-    "Launda!",
-    "Teri aukaat kya hai?",
-    "Jhat ke!",
-    "Fattu!",
-    "Namak haram!",
-    "Beghairat!",
+    // English
+    "You miserable fool!",
+    "You absolute idiot!",
+    "What a complete nuisance!",
+    "Get lost, you clown!",
+    "You are a total disaster!",
+    "You have the manners of a troll!",
+    "You walking embarrassment!",
+    "You absolute troublemaker!",
+    "What a silly fool!",
+    "You have rocks for brains!",
+    "You are a shameless troublemaker!",
+    "You ridiculous nuisance!",
+    "You hopeless fool!",
+    "You are a complete mess!",
+    "You silly little rascal!",
+    "You obnoxious clown!",
+    "You are all talk and no sense!",
+    "You absolute buffoon!",
+    "You are a professional troublemaker!",
+    "You have the brains of a potato!",
+    "You are as useful as a screen door on a submarine!",
+    "You silly fool!",
+    "You are a walking bad decision!",
+    "Your family tree must be a cactus—everyone on it is a prick!",
+    "You are a spectacular failure!",
+    "You are a complete pain!",
+    "Get out of here, you clown!",
+    "You are a certified idiot!",
+    "Please be quiet, you nuisance!",
+    "You are a walking disaster!",
+    "You have the personality of a wet sock!",
+    "Go bother someone else!",
+    "You are impossible to take seriously!",
+    "You silly goof!",
+    "You are a complete lightweight!",
+    "What makes you think you are so important?",
+    "You are a ridiculous coward!",
+    "You are all noise and no substance!",
+    "You ungrateful fool!",
+    "Have some shame!",
     // English
     "Fuck you!",
     "Motherfucker!",
@@ -2342,18 +2340,18 @@ module.exports = {
 
       const sequence = [
         "💥 FUCK ALL OF YOU 💥",
-        "SAB KE SAB MADERCHOD 🖕",
-        "BHAN KE CHOD 👊",
-        "TERI MA KA BHOSDA 🔥",
-        "GAND MARAO SAB NE 🍑",
-        "*CHUTIYA SAPNA* 💢",
-        "RANDI KE PILLE 🚬",
-        "FUCK YOUR GENERATION 👪🖕",
-        "*CH*T CH*T* 💦",
-        "BHAN CHOD DUNGA SABKO 😈",
-        "TERI MA KA LUND 🍆",
-        "JOHNY SINS KA CHODA 🥵",
-        "*GROUP CHOD DIYA* 🔊",
+        "YOU ARE ALL COMPLETE FOOLS 🖕",
+        "GET LOST, YOU IDIOTS 👊",
+        "WHAT A BUNCH OF CLOWNS 🔥",
+        "GO AWAY, ALL OF YOU 🍑",
+        "*WHAT A SILLY MESS* 💢",
+        "YOU ABSOLUTE TROUBLEMAKERS 🚬",
+        "YOUR WHOLE CREW IS A DISASTER 👪🖕",
+        "*WHAT A JOKE* 💦",
+        "I'M DONE WITH ALL OF YOU 😈",
+        "YOU ARE ALL RIDICULOUS 🍆",
+        "WHAT A WILD CROWD 🥵",
+        "*I'M LEAVING THIS GROUP* 🔊",
        
       ];
 
@@ -2455,7 +2453,7 @@ module.exports = {
   command: 'fuckyou',
   aliases: ['fu', 'fucku', 'fuckoff'],
   category: 'abuse',
-  description: '🖕 Ultimate abuse sequence – Hindi + English',
+  description: '🖕 Ultimate English insult sequence',
   usage: '.fuckyou',
 
   async handler(sock, message, args, context) {
@@ -2470,24 +2468,24 @@ module.exports = {
       const sequence = [
         "🖕 FUCK YOU 🖕",
         "💥 FUCK YOUR WHOLE FAMILY 💥",
-        "🤬 MADER CHOD 🤬",
-        "👊 BHAN CHOR 👊",
-        "🔥 THERI BHAN KO CHODU 🔥",
-        "💢 MA KA LORA 💢",
-        "👿 BHAN KA TAKA 👿",
-        "🍆 TERI MA KO LUN 🍆",
-        "😡 MADERCHOR 😡",
-        "🔊 MIA KHALIFA KI AULAD 🔊",
-        "🎬 JONY SINS KI AULAD 🎬",
-        "💥 BHAN KA TAKA 💥",
-        "🐷 RANDI KE BACHE 🐷",
-        "🐕 KUTTA 🐕",
-        "🐗 SUAR KI AULAD 🐗",
-        "🤪 CHUTIYA 🤪",
-        "💢 BHOSDIKE 💢",
-        "🖕 GANDU 🖕",
-        "🔥 TERI MA KA BHOSDA 🔥",
-        "💥 BHAN CHOAD 💥",
+        "🤬 YOU ABSOLUTE FOOL 🤬",
+        "👊 GET LOST, CLOWN 👊",
+        "🔥 YOU ARE A TOTAL DISASTER 🔥",
+        "💢 WHAT A RIDICULOUS MESS 💢",
+        "👿 YOU SILLY TROUBLEMAKER 👿",
+        "🍆 YOU HAVE NO SENSE 🍆",
+        "😡 YOU COMPLETE IDIOT 😡",
+        "🔊 WHAT A LOUDMOUTH 🔊",
+        "🎬 WHAT A SHOW-OFF 🎬",
+        "💥 YOU ARE SO ANNOYING 💥",
+        "🐷 YOU SILLY PIG 🐷",
+        "🐕 YOU LITTLE RASCAL 🐕",
+        "🐗 YOU ARE A MESS 🐗",
+        "🤪 WHAT A CLOWN 🤪",
+        "💢 YOU ABSOLUTE BUFFOON 💢",
+        "🖕 GET A GRIP 🖕",
+        "🔥 YOU ARE A COMPLETE JOKE 🔥",
+        "💥 GO AWAY, FOOL 💥",
         "👊 MADARCHOD 👊",
         "🔞 NOW FUCK OFF! 🔞"
       ];
