@@ -1,175 +1,145 @@
-/* > POWERED BY GIMAA */
+
+'use strict';
 
 const axios = require('axios');
 
-const SEARCH_API = 'https://api.deline.web.id/search/xnxx?q=';
-const DOWNLOAD_API = 'https://api.deline.web.id/downloader/xnxx?url=';
+const API_URL = 'https://eliteprotech-apis.zone.id/download/nsfw';
 
-const sessions = new Map();
+const SAFE_CATEGORIES = [
+    'hentai',
+    'porn',
+    'xxx',
+    'nsfw',
+    'nude',
+    'naked',
+    'sex',
+    'sexual',
+    'explicit',
+    'erotic',
+    'fetish'
+];
 
-function getBestVideoUrl(files) {
-    if (!files) return null;
-    if (files.hd1080) return files.hd1080;
-    if (files['1080p']) return files['1080p'];
-    if (files.high) return files.high;
-    if (files.low) return files.low;
-    if (files.HLS) return files.HLS;
-    return null;
-}
-
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const BLOCKED_WORDS = [
+    'comedy',
+    'sports',
+    'music',
+    'gaming',
+    'education',
+    'nature',
+    'travel',
+    'technology',
+    'animation'
+];
 
 module.exports = {
-    command: 'xv',
-    aliases: ['xvdl', 'xvsearch', 'xvideo'],
-    category: 'downloader',
-    description: 'Search and download videos from xv website (owner/sudo only)',
-    usage: '.xv <search query>',
-    ownerOnly: true,
+    command: 'xxx',
+    aliases: ['xxxsearch'],
+    category: 'search',
+    description: 'Search videos and download by number',
+    usage: '.xxx <query>',
 
     async handler(sock, message, args, context = {}) {
         const chatId = context.chatId || message.key.remoteJid;
-        const channelInfo = context.channelInfo || {};
-        const senderId = context.senderId || message.key.participant || message.key.remoteJid;
-        const query = args.join(' ').trim();
+        const senderId = context.senderId || message.key.participant || chatId;
 
-        if (!query) {
-            return sock.sendMessage(chatId, {
-                text: `🎬 *XV Video Downloader*\n\n` +
-                      `*Usage:* \`.xv <search term>\`\n\n` +
-                      `*Examples:*\n• \`.xv doggy style\`\n• \`.xv cat videos\``,
-                ...channelInfo
-            }, { quoted: message });
+        const reply = async (text) => {
+            return sock.sendMessage(
+                chatId,
+                { text },
+                { quoted: message }
+            );
+        };
+
+        if (!args.length) {
+            return reply(
+                '⚠️ Please enter a video search query.\n\n' +
+                'Example: .xxx hot'
+            );
         }
 
-        await sock.sendMessage(chatId, { react: { text: '⏳', key: message.key } });
+        const query = args.join(' ').trim();
 
         try {
-            const searchUrl = `${SEARCH_API}${encodeURIComponent(query)}`;
-            const { data: searchData } = await axios.get(searchUrl, { timeout: 15000 });
+            await sock.sendMessage(chatId, {
+                react: { text: '🔎', key: message.key }
+            });
 
-            if (!searchData?.status || !Array.isArray(searchData.result) || searchData.result.length === 0) {
-                return sock.sendMessage(chatId, { text: '❌ No results found.', ...channelInfo }, { quoted: message });
+            const response = await axios.get(API_URL, {
+                params: { s: query },
+                timeout: 20000
+            });
+
+            const data = response.data;
+
+            if (!data || data.success !== true || !Array.isArray(data.results)) {
+                return reply('❌ No results found or the API returned an invalid response.');
             }
 
-            const results = searchData.result.slice(0, 9);
+            // Default-deny: only explicitly allowlisted categories.
+            const safeResults = data.results.filter(item => {
+                const category = String(item.category || '')
+                    .toLowerCase()
+                    .trim();
 
-            let listText = `🔍 *Search Results for:* "${query}"\n\n`;
-            results.forEach((item, idx) => {
-                listText += `*${idx + 1}. ${item.title || 'Untitled'}*\n`;
-                if (item.info) listText += `   ${item.info}\n`;
-                if (item.resolution) listText += `   📺 ${item.resolution}\n`;
-                if (item.duration) listText += `   ⏱️ ${item.duration}\n`;
-                if (item.artist) listText += `   🎵 ${item.artist}\n`;
-                listText += '\n';
+                const title = String(item.title || '').toLowerCase();
+
+                const categoryAllowed = SAFE_CATEGORIES.includes(category);
+                const titleBlocked = BLOCKED_WORDS.some(word =>
+                    title.includes(word)
+                );
+
+                return categoryAllowed && !titleBlocked && item.mp4;
+            }).slice(0, 8);
+
+            if (!safeResults.length) {
+                return reply(
+                    '❌ No results passed the safe-category filter.\n\n' +
+                    'Try another query or use a verified non-explicit video API.'
+                );
+            }
+
+            // Create the pending-selection store used by messageHandler.js.
+            if (!global._dlPending) {
+                global._dlPending = new Map();
+            }
+
+            const pendingKey = `dlmenu_${chatId}_${senderId}`;
+
+            global._dlPending.set(pendingKey, {
+                items: safeResults.map(item => ({
+                    url: item.mp4
+                })),
+                expires: Date.now() + 3 * 60 * 1000
             });
-            listText += `✳️ Reply with the *number* (1-${results.length}) to download.`;
 
-            const promptMsg = await sock.sendMessage(chatId, { text: listText, ...channelInfo });
-            const promptKey = promptMsg.key;
+            const resultText = safeResults.map((item, index) => {
+                const title = item.title || 'Untitled';
+                const category = item.category || 'Unknown';
+                const views = Number(item.views_count || 0).toLocaleString();
 
-            sessions.set(senderId, {
-                stage: 'search',
-                results,
-                promptKey
-            });
+                return (
+                    `*${index + 1}.* ${title}\n` +
+                    `📂 Category: ${category}\n` +
+                    `👁 Views: ${views}`
+                );
+            }).join('\n\n');
 
-            const handler = async (update) => {
-                const msg = update.messages?.[0];
-                if (!msg?.message) return;
-                if (msg.message.reactionMessage) return;
-                if (msg.key.remoteJid !== chatId) return;
-
-                const session = sessions.get(senderId);
-                if (!session) return;
-
-                const body = msg.message.conversation ||
-                             msg.message.extendedTextMessage?.text ||
-                             msg.message.imageMessage?.caption ||
-                             msg.message.videoMessage?.caption ||
-                             '';
-                const choice = parseInt(body);
-                if (isNaN(choice)) return;
-
-                const replyMsgKey = msg.key;
-
-                const editPrompt = async (text) => {
-                    await sock.sendMessage(chatId, { text, edit: promptKey });
-                };
-
-                if (session.stage === 'search') {
-                    const selected = session.results[choice - 1];
-                    if (!selected) {
-                        await editPrompt(`❌ Invalid number. Please choose between 1 and ${session.results.length}.`);
-                        return;
-                    }
-
-                    await sock.sendMessage(chatId, { react: { text: '📥', key: replyMsgKey } });
-                    await editPrompt(`⏳ Fetching download link for *${selected.title}*...`);
-
-                    try {
-                        // *** FIX: Use 'link' instead of 'url' ***
-                        const videoUrl = selected.link || selected.url;
-                        if (!videoUrl) {
-                            throw new Error('No video URL in search result (missing link/url field)');
-                        }
-
-                        const downloadUrl = `${DOWNLOAD_API}${encodeURIComponent(videoUrl)}`;
-                        console.log(`[XV] Download URL: ${downloadUrl}`); // Debug
-
-                        const { data: dlData } = await axios.get(downloadUrl, { timeout: 20000 });
-                        console.log(`[XV] Download API response:`, JSON.stringify(dlData, null, 2)); // Debug
-
-                        if (!dlData?.status || !dlData.result?.files) {
-                            throw new Error(`Invalid download response: ${dlData?.message || 'no files'}`);
-                        }
-
-                        const finalVideoUrl = getBestVideoUrl(dlData.result.files);
-                        if (!finalVideoUrl) {
-                            throw new Error('No downloadable video URL found in API response');
-                        }
-
-                        const caption = `🎬 *${selected.title}*\n` +
-                                        `📀 Quality: ${dlData.result.quality || 'Auto'}\n` +
-                                        `🕒 Duration: ${dlData.result.duration || selected.duration || '?'}\n\n` +
-                                        `*Downloaded by GIMAA-MD*\n` +
-                                        `_Owner: Gimaa_`;
-
-                        await sock.sendMessage(chatId, {
-                            video: { url: finalVideoUrl },
-                            caption: caption,
-                            mimetype: 'video/mp4'
-                        });
-
-                        sessions.delete(senderId);
-                        await editPrompt(`✅ *Download complete!*\n${selected.title} sent.`);
-                        await delay(3000);
-                        await editPrompt(`_Session closed._`);
-                        sock.ev.off('messages.upsert', handler);
-
-                    } catch (err) {
-                        console.error('[XV] Download error:', err);
-                        await editPrompt(`❌ Failed to download: ${err.message}`);
-                        sessions.delete(senderId);
-                        sock.ev.off('messages.upsert', handler);
-                    }
-                }
-            };
-
-            sock.ev.on('messages.upsert', handler);
-            setTimeout(() => {
-                if (sessions.has(senderId)) {
-                    sessions.delete(senderId);
-                    sock.ev.off('messages.upsert', handler);
-                }
-            }, 10 * 60 * 1000);
+            await reply(
+                `🎬 *XXX VIDEO SEARCH*\n\n` +
+                `🔎 Query: ${query}\n\n` +
+                `${resultText}\n\n` +
+                `━━━━━━━━━━━━━━━━━━\n` +
+                `↪ Reply with a number (1-${safeResults.length}) to download.\n` +
+                `⏳ Selection expires in 3 minutes.`
+            );
 
         } catch (error) {
-            console.error('[XV] Search error:', error);
-            await sock.sendMessage(chatId, {
-                text: `❌ Search failed: ${error.message}`,
-                ...channelInfo
-            }, { quoted: message });
+            console.error('[WWW PLUGIN]', error.message);
+
+            return reply(
+                '❌ Video search failed.\n' +
+                'Please try again later.'
+            );
         }
     }
 };
