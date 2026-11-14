@@ -4,12 +4,51 @@
 const axios = require('axios');
 const yts = require('yt-search');
 
-const API_URL = 'https://supunofc.site/api/download/ytmp3-down';
-const API_KEY = process.env.SUPUN_API_KEY || 'supun_85ef36bc62988cf3ea1609ab19db8333';
+const APIS = [
+    async (url) => {
+        const { data } = await axios.get(
+            'https://eliteprotech-apis.zone.id/download/ytmp3',
+            { params: { url }, timeout: 60000 }
+        );
+        return data?.status ? data.download?.downloadUrl : null;
+    },
+
+    async (url) => {
+        const { data } = await axios.get(
+            'https://jerrycoder.oggyapi.workers.dev/down/ytmp3-v1',
+            { params: { url }, timeout: 60000 }
+        );
+        return data?.status === 'success' ? data.url : null;
+    },
+
+    async (url) => {
+        const { data } = await axios.get(
+            'https://xenoytdl-2.vercel.app/api/youtube',
+            { params: { url, format: 'mp3' }, timeout: 60000 }
+        );
+        return data?.status ? data.download : null;
+    }
+];
+
+async function getAudioUrl(videoUrl) {
+    for (const api of APIS) {
+        try {
+            const result = await api(videoUrl);
+
+            if (result && /^https?:\/\//i.test(result)) {
+                return result;
+            }
+        } catch (error) {
+            console.log('[GIMAA SONG API]', error.message);
+        }
+    }
+
+    return null;
+}
 
 module.exports = {
     command: 'song',
-    aliases: ['mp3', 'ytaudio'],
+    aliases: ['mp3', 'ytaudio', 'play'],
     category: 'download',
     description: 'Search and download songs from YouTube',
     usage: '.song <song name>',
@@ -18,7 +57,11 @@ module.exports = {
         const chatId = context.chatId || message.key.remoteJid;
 
         const reply = async (text) => {
-            return sock.sendMessage(chatId, { text }, { quoted: message });
+            return sock.sendMessage(
+                chatId,
+                { text },
+                { quoted: message }
+            );
         };
 
         try {
@@ -41,11 +84,10 @@ module.exports = {
 
             await reply(`🔎 Searching YouTube...\n\n🎵 Query: ${query}`);
 
-            // Search YouTube
             const search = await yts(query);
             const video = search.videos?.[0];
 
-            if (!video || !video.url) {
+            if (!video?.url) {
                 return reply('❌ No matching songs found!');
             }
 
@@ -59,41 +101,15 @@ module.exports = {
             const thumbnail = video.thumbnail;
             const videoUrl = video.url;
 
-            // Download using Supun API
-            const response = await axios.get(API_URL, {
-                params: {
-                    url: videoUrl,
-                    apikey: API_KEY
-                },
-                timeout: 60000
-            });
+            await reply('⬇️ Getting audio download link...');
 
-            const data = response.data;
+            const audioUrl = await getAudioUrl(videoUrl);
 
-            if (!data?.success || !Array.isArray(data.result)) {
-                return reply(
-                    '❌ Download API failed!\n' +
-                    (data?.message || 'No audio available.')
-                );
+            if (!audioUrl) {
+                return reply('❌ All audio download APIs failed!');
             }
 
-            // Find audio track
-            const audio = data.result.find(item =>
-                item.type === 'Audio Track' &&
-                item.downloadUrl &&
-                item.downloadUrl.includes('mime=audio%2Fmp4')
-            ) || data.result.find(item =>
-                item.type === 'Audio Track' && item.downloadUrl
-            );
-
-            if (!audio) {
-                return reply('❌ Audio download link not found!');
-            }
-
-            await reply('⬇️ Downloading audio...\n\nPlease wait.');
-
-            // Download audio buffer
-            const file = await axios.get(audio.downloadUrl, {
+            const file = await axios.get(audioUrl, {
                 responseType: 'arraybuffer',
                 timeout: 120000,
                 maxContentLength: 50 * 1024 * 1024,
@@ -119,16 +135,15 @@ module.exports = {
 
             const isMp4 =
                 contentType.includes('audio/mp4') ||
-                audio.downloadUrl.includes('mime=audio%2Fmp4');
+                audioUrl.includes('mime=audio%2Fmp4');
 
-            const extension = isMp4 ? 'm4a' : 'webm';
-            const mimeType = isMp4 ? 'audio/mp4' : 'audio/webm';
+            const extension = isMp4 ? 'm4a' : 'mp3';
+            const mimeType = isMp4 ? 'audio/mp4' : 'audio/mpeg';
 
             const safeTitle = title
                 .replace(/[\\/:*?"<>|]/g, '')
                 .slice(0, 90);
 
-            // Song information
             const details =
                 '╭━━〔 🎵 GIMAA SONG 〕━━╮\n' +
                 '┃\n' +
@@ -144,9 +159,8 @@ module.exports = {
                 `┃ 🔗 YouTube: ${videoUrl}\n` +
                 '┃\n' +
                 '╰━━━━━━━━━━━━━━━━━━╯\n\n' +
-                '> POWERED BY GIMAA MD';
+                '> POWERED BY GIMAA';
 
-            // Send thumbnail and song details
             if (thumbnail) {
                 try {
                     const thumb = await axios.get(thumbnail, {
@@ -157,9 +171,8 @@ module.exports = {
                     await sock.sendMessage(chatId, {
                         image: Buffer.from(thumb.data),
                         caption: details
-                    }, {
-                        quoted: message
-                    });
+                    }, { quoted: message });
+
                 } catch (error) {
                     await reply(details);
                 }
@@ -167,15 +180,12 @@ module.exports = {
                 await reply(details);
             }
 
-            // Send actual audio
             await sock.sendMessage(chatId, {
                 audio: buffer,
                 mimetype: mimeType,
                 fileName: `${safeTitle}.${extension}`,
                 ptt: false
-            }, {
-                quoted: message
-            });
+            }, { quoted: message });
 
         } catch (error) {
             console.error('[GIMAA SONG ERROR]', error);
